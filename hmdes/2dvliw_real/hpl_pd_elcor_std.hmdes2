@@ -1,0 +1,269 @@
+
+/////////////////////////////////////////////////////////////////////////////
+//
+//      File:           hpl_pd_elcor_std.hmdes2
+//      Authors:        Shail Aditya
+//      Created:        February, 1996
+//      Description:    HPL-PD Architecture Description (toplevel)
+//
+/////////////////////////////////////////////////////////////////////////////
+// HPL-PD Machine Architecture Description (IFMB model. multi issue)
+
+// STANDARD HPL-PD CONFIGURATION FILE
+// Written by Shail Aditya 02/14/96
+
+$def !num_clusters	16
+
+$def !num_clusters1	4
+$def !num_clusters2	8
+$def !num_clusters3	12
+$def !num_clusters4	16
+
+// Register File sizes
+
+$def !gpr_static_size 	64
+$def !gpr_rotating_size 64
+
+$def !fpr_static_size 	64
+$def !fpr_rotating_size 64
+
+$def !pr_static_size    64
+$def !pr_rotating_size 	64
+
+$def !cr_static_size 	64
+$def !cr_rotating_size 	64
+
+$def !btr_static_size 	64
+
+// SLARSEN: Vector register files
+$def !vir_static_size	64
+$def !vir_rotating_size	64
+
+$def !vfr_static_size	64
+$def !vfr_rotating_size	64
+
+$def !vmr_static_size	64
+$def !vmr_rotating_size	64
+
+// HPL-PD 2.0 Extn
+// Literal Register File sizes
+
+$def !short_lit_size    7
+$def !memory_lit_size   10
+$def !branch_lit_size   10
+$def !long_lit_size     16
+$def !unrestricted_lit_size     32
+
+// Per-cluster Functional Units
+
+$def !integer_units 	1
+$def !float_units 	1
+$def !memory_units 	1
+$def !branch_units 	1
+
+// Inter-cluster move bandwidth
+$def !icmove_bw         2
+
+// HPL-PD 2.0 Extn
+// The first param is the number of distinct local memories (each has
+// its own address space (MAX=32 right now).  The second is the number
+// of units (per cluster) to access each LM.  Currently the "local" mems
+// are accessible to all clusters.
+$def !local_memories 0
+$def !local_memory_units_per_lmem 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+
+// SLARSEN: Vector length and functional units
+$def !vec_length 		4
+$def !vec_integer_units		1
+//$def !vec_float_units		1
+$def !vec_integer_perm_units	1
+//$def !vec_float_perm_units	1
+$def !vec_integer_xfr_units	2
+//$def !vec_float_xfr_units	2
+
+
+// RMR: issue slots
+$def !issue_slots		6
+
+// Latency Parameters
+// sample = earliest input sampling (flow) time 
+// exception = latest input hold (anti) time (to restart from intervening exceptions)
+// latency = latest output available (flow) time 
+// reserve = earliest output allocation (anti) time (to allow draining the pipeline)
+
+$def !int_alu_sample		0
+$def !int_alu_exception		0
+$def !int_alu_latency		1
+$def !int_alu_reserve		0
+
+$def !int_cmpp_sample		0
+$def !int_cmpp_exception	0
+$def !int_cmpp_latency		1
+$def !int_cmpp_reserve		0
+
+$def !int_multiply_sample	0
+$def !int_multiply_exception	0
+$def !int_multiply_latency	3
+$def !int_multiply_reserve	0
+$def !int_multiply_add_sample	2
+
+$def !int_divide_sample		0
+$def !int_divide_exception	0
+$def !int_divide_latency	8
+$def !int_divide_reserve	0
+
+$def !float_alu_sample		0
+$def !float_alu_exception	0
+$def !float_alu_latency		3
+$def !float_alu_reserve         0
+
+$def !float_move_sample		0
+$def !float_move_exception	0
+$def !float_move_latency	1
+$def !float_move_reserve	0
+
+$def !float_cmpp_sample		0
+$def !float_cmpp_exception	0
+$def !float_cmpp_latency	1
+$def !float_cmpp_reserve        0
+
+$def !float_multiply_sample	0
+$def !float_multiply_exception	0
+$def !float_multiply_latency	3
+$def !float_multiply_reserve	0
+
+$def !float_divide_sample	0
+$def !float_divide_exception	0
+$def !float_divide_latency	8
+$def !float_divide_reserve      0
+
+$def !post_increment_add	1
+
+$def !load_level1_sample	0
+$def !load_level1_exception	0
+$def !load_level1_latency	2
+$def !load_level1_reserve       0
+
+$def !load_level2_sample	0
+$def !load_level2_exception	0
+$def !load_level2_latency	7
+$def !load_level2_reserve       0
+
+$def !load_level3_sample	0
+$def !load_level3_exception	0
+$def !load_level3_latency	35
+$def !load_level3_reserve	0
+
+$def !dsload_level1_sample	0
+$def !dsload_level1_exception	2
+$def !dsload_level1_latency	2
+$def !dsload_level1_reserve	0
+
+$def !dsload_level2_sample	0
+$def !dsload_level2_exception	7
+$def !dsload_level2_latency	7
+$def !dsload_level2_reserve	0
+
+$def !dsload_level3_sample	0
+$def !dsload_level3_exception	35
+$def !dsload_level3_latency	35
+$def !dsload_level3_reserve	0
+
+$def !store_sample		0
+$def !store_exception		0
+$def !store_latency		1
+$def !store_reserve		0
+
+$def !dsload_verify_sample	0
+$def !dsload_verify_exception	0
+$def !dsload_verify_latency	1
+$def !dsload_verify_reserve	0
+
+$def !branch_sample		0
+$def !branch_exception		0
+$def !branch_latency		1
+$def !branch_reserve		0
+
+// HPL-PD 2.0 Extn
+$def !load_localmem_sample	0
+$def !load_localmem_exception	0
+$def !load_localmem_latency	2
+$def !load_localmem_reserve     0
+
+// HPL-PD 2.0 Extn
+$def !store_localmem_sample	0
+$def !store_localmem_exception	0
+$def !store_localmem_latency	1
+$def !store_localmem_reserve	0
+
+// SLARSEN: Vector unit latency parameters
+$def !vec_int_alu_sample		int_alu_sample
+$def !vec_int_alu_exception		int_alu_exception
+$def !vec_int_alu_latency		int_alu_latency
+$def !vec_int_alu_reserve		int_alu_reserve
+
+$def !vec_int_multiply_sample		int_multiply_sample
+$def !vec_int_multiply_exception	int_multiply_exception
+$def !vec_int_multiply_latency		int_multiply_latency
+$def !vec_int_multiply_reserve		int_multiply_reserve
+
+$def !vec_int_divide_sample		int_divide_sample
+$def !vec_int_divide_exception		int_divide_exception
+$def !vec_int_divide_latency		int_divide_latency
+$def !vec_int_divide_reserve		int_divide_reserve
+
+$def !vec_float_alu_sample		float_alu_sample
+$def !vec_float_alu_exception		float_alu_exception
+$def !vec_float_alu_latency		float_alu_latency
+$def !vec_float_alu_reserve		float_alu_reserve
+
+$def !vec_float_move_sample		float_move_sample
+$def !vec_float_move_exception		float_move_exception
+$def !vec_float_move_latency		float_move_latency
+$def !vec_float_move_reserve		float_move_reserve
+
+$def !vec_float_multiply_sample		float_multiply_sample
+$def !vec_float_multiply_exception	float_multiply_exception
+$def !vec_float_multiply_latency	float_multiply_latency
+$def !vec_float_multiply_reserve	float_multiply_reserve
+
+$def !vec_float_divide_sample		float_divide_sample
+$def !vec_float_divide_exception	float_divide_exception
+$def !vec_float_divide_latency		float_divide_latency
+$def !vec_float_divide_reserve		float_divide_reserve
+
+$def !vec_load_level1_sample		load_level1_sample
+$def !vec_load_level1_exception		load_level1_exception
+$def !vec_load_level1_latency		load_level1_latency
+$def !vec_load_level1_reserve		load_level1_reserve
+
+$def !vec_store_sample			store_sample
+$def !vec_store_exception		store_exception
+$def !vec_store_latency			store_latency
+$def !vec_store_reserve			store_reserve
+
+$def !vec_int_perm_sample		0
+$def !vec_int_perm_exception		0
+$def !vec_int_perm_latency		1
+$def !vec_int_perm_reserve		0
+
+$def !vec_float_perm_sample		0
+$def !vec_float_perm_exception		0
+$def !vec_float_perm_latency		1
+$def !vec_float_perm_reserve		0
+
+$def !vec_int_xfr_sample		0
+$def !vec_int_xfr_exception		0
+$def !vec_int_xfr_latency		1
+$def !vec_int_xfr_reserve		0
+
+$def !vec_float_xfr_sample		0
+$def !vec_float_xfr_exception		0
+$def !vec_float_xfr_latency		1
+$def !vec_float_xfr_reserve		0
+
+// Standard Mdes included files 
+$include "hpl_pd_ops.hmdes2"
+$include "structure_pristine.hmdes2"
+$include "hpl_pd_pristine.hmdes2"
+$include "hpl_pd_elcor.hmdes2"

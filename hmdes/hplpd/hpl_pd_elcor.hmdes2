@@ -1,0 +1,821 @@
+
+/////////////////////////////////////////////////////////////////////////////
+//
+//      File:           hpl_pd_elcor.hmdes2
+//      Authors:        Shail Aditya
+//      Created:        January, 1996
+//      Description:    HPL-PD Architecture Description (Elcor Specific)
+//
+/////////////////////////////////////////////////////////////////////////////
+// HPL-PD Machine Architecture Description (IFMB model)
+
+// Preliminary conversion of PLAYDOH.hmdes1 to ELCOR specific hmdes2 format.
+// 
+// Written by Shail Aditya 01/16/96
+// Based on John C. Gyllenhaal's example of PA_7100_IMPACT.hmdes2
+// Based on Rick Hank's PLAYDOH.hmdes1
+
+// *************************************************************
+// Elcor Operations and Properties
+
+SECTION Elcor_Operation_Flag
+{
+  // Operation Class
+  // order must be consistent with OpClass defined in mdes.h
+  NULLOP();
+  LOADOP();
+  STOREOP();
+  BRANCHOP();
+  ARITHOP();
+  
+  //tangw 06-04-02
+  ISCUSTOM ();
+
+  // Resource Class
+  // order must be consistent with ResClass defined in mdes.h
+  NULL();
+  INT();
+  FLOAT();
+  MEMORY();
+  BRANCH();
+
+  // HPL-PD 2.0 Extn
+  $if ($?{local_memories}) {
+    LOCALMEMORY();
+  }
+
+  // Eager Class
+  NONSPECULATIVE();
+  SPECULATIVE(); 
+
+  // Other flags
+  is_pred();  		// op is predicated
+  is_leop();		// op follows less-than-equals semantics
+  is_advload();		// op is advanced load
+  is_assoc();		// op is associative
+  is_comm();		// op is commutative
+  is_unsupported();     // op is unsupported
+}
+
+// *************************************************************
+// Dummy/Pseudo Scheduling Alternatives and Operations
+
+SECTION Operation_Format
+{
+  OF_null(pred() src() dest());
+  OF_def(pred() src(FT_icfbplu_all FT_icfbplu_all) dest(FT_icfbpu_all));
+
+  // Shivarama Rao. Added new opcodes for pseudo load and removed the
+  // Overloaded PSEUDO_LOAD operation
+  OF_pseudo_load_literal(pred() src(FT_l) dest(FT_icfbpu_all));
+  OF_pseudo_load_scalar(pred() src(FT_l FT_l) dest(FT_icfbpu_all));
+  OF_pseudo_load_scalar_array(pred() src(FT_l FT_l FT_l) dest(FT_icfbpu_all));
+  OF_pseudo_load_evr(pred() src(FT_l FT_l FT_l) dest(FT_icfbpu_all));
+
+  // Shivarama Rao. Added new opcodes for pseudo store and removed the
+  // Overloaded PSEUDO_STORE operation
+  OF_pseudo_store_scalar(pred() src(FT_l FT_l FT_i_all) dest());
+  OF_pseudo_store_scalar_array(pred() src(FT_l FT_l FT_l FT_i_all) dest());
+  OF_pseudo_store_evr(pred() src(FT_l FT_l FT_l FT_i_all) dest());
+  OF_pseudo_print(pred() src(FT_i_all FT_l FT_l) dest());
+  OF_pseudo_init_mem(pred() src(FT_l FT_l FT_l FT_l FT_l FT_l FT_l FT_l FT_l) dest());
+  OF_use(pred() src(FT_l) dest());
+  OF_alloc(pred() src(FT_l) dest(FT_i_all));
+  OF_dummy(pred() src() dest());
+  OF_all(pred() src(FT_icfbpu_all) dest(FT_icfbpu_all));
+  OF_brdir(pred(FT_p_all) src(FT_icfbplu_all FT_icfbplu_all FT_icfbplu_all) dest());
+  OF_brind(pred(FT_p_all) src(FT_icfbpu_all) dest());
+  
+  //modification for custom opcode tangw (06-04-02)
+  OF_custom(pred(FT_p_all) 
+            src(FT_icfbplu_all FT_icfbplu_all FT_icfbplu_all FT_icfbplu_all FT_icfbplu_all)  
+            dest(FT_icfbpu_all FT_icfbpu_all FT_icfbpu_all FT_icfbpu_all FT_icfbpu_all));
+}
+
+SECTION Scheduling_Alternative
+{
+  SA_null_null_null(format(OF_null) latency(OL_null) resv(RT_null));
+  SA_def_null_null(format(OF_def) latency(OL_null) resv(RT_null));
+
+  // Shivarama Rao. Added new opcodes for pseudo load and removed the
+  // Overloaded PSEUDO_LOAD operation
+  SA_pseudo_load_literal_null_null(format(OF_pseudo_load_literal) latency(OL_null) resv(RT_null));
+  SA_pseudo_load_scalar_null_null(format(OF_pseudo_load_scalar) latency(OL_null) resv(RT_null));
+  SA_pseudo_load_scalar_array_null_null(format(OF_pseudo_load_scalar_array) latency(OL_null) resv(RT_null));
+  SA_pseudo_load_evr_null_null(format(OF_pseudo_load_evr) latency(OL_null) resv(RT_null));
+
+  // Shivarama Rao. Added new opcodes for pseudo store and removed the
+  // Overloaded PSEUDO_STORE operation
+  SA_pseudo_store_scalar_null_null(format(OF_pseudo_store_scalar) latency(OL_null) resv(RT_null));
+  SA_pseudo_store_scalar_array_null_null(format(OF_pseudo_store_scalar_array) latency(OL_null) resv(RT_null));
+  SA_pseudo_store_evr_null_null(format(OF_pseudo_store_evr) latency(OL_null) resv(RT_null));
+  SA_pseudo_print_null_null(format(OF_pseudo_print) latency(OL_null) resv(RT_null));
+  SA_pseudo_init_mem_null_null(format(OF_pseudo_init_mem) latency(OL_null) resv(RT_null));
+  SA_use_null_null(format(OF_use) latency(OL_null) resv(RT_null));
+  SA_alloc_null_null(format(OF_alloc) latency(OL_null) resv(RT_null));
+  SA_dummy_null_null(format(OF_dummy) latency(OL_null) resv(RT_null));
+  SA_all_branch_null(format(OF_all) latency(OL_branch) resv(RT_null));
+  SA_all_null_null(format(OF_all) latency(OL_null) resv(RT_null));
+  SA_brdir_branch_null(format(OF_brdir) latency(OL_branch) resv(RT_null));
+  SA_brind_branch_null(format(OF_brind) latency(OL_branch) resv(RT_null));
+  
+  //modification for custom opcode tangw (06-04-02)
+  SA_custom(format(OF_custom) latency(OL_null) resv(RT_null));
+}
+
+SECTION Operation
+{
+  // dummy ops
+  "PROLOGUE.0"(alt(SA_null_null_null));
+  "EPILOGUE.0"(alt(SA_null_null_null));
+  "DEFINE.0"(alt(SA_def_null_null));
+
+  // Shivarama Rao. Added new opcodes for pseudo load and removed the
+  // Overloaded PSEUDO_LOAD operation
+  "PSEUDO_LOAD_LITERAL.0"(alt(SA_pseudo_load_literal_null_null));
+  "PSEUDO_LOAD_SCALAR.0"(alt(SA_pseudo_load_scalar_null_null));
+  "PSEUDO_LOAD_SCALAR_ARRAY.0"(alt(SA_pseudo_load_scalar_array_null_null));
+  "PSEUDO_LOAD_EVR.0"(alt(SA_pseudo_load_evr_null_null));
+
+  // Shivarama Rao. Added new opcodes for pseudo store and removed the
+  // Overloaded PSEUDO_STORE operation
+  "PSEUDO_STORE_SCALAR.0"(alt(SA_pseudo_store_scalar_null_null));
+  "PSEUDO_STORE_SCALAR_ARRAY.0"(alt(SA_pseudo_store_scalar_array_null_null));
+  "PSEUDO_STORE_EVR.0"(alt(SA_pseudo_store_evr_null_null));
+  "PSEUDO_PRINT.0"(alt(SA_pseudo_print_null_null));
+  "PSEUDO_INIT_MEM.0"(alt(SA_pseudo_init_mem_null_null));
+  "ALLOC.0"(alt(SA_alloc_null_null));
+  "DUMMY_BR.0"(alt(SA_dummy_null_null));
+  "C_MERGE.0"(alt(SA_dummy_null_null));
+  "D_SWITCH.0"(alt(SA_all_null_null));
+  "D_MERGE.0"(alt(SA_all_null_null));
+  "REMAP.0"(alt(SA_all_null_null));
+  "NO_OP.0"(alt(SA_dummy_null_null));
+  "M_NO_OP.0"(alt(SA_use_null_null));
+
+  // branch pseudo ops
+  "BRDIR.0"(alt(SA_brdir_branch_null));
+  "BRIND.0"(alt(SA_brind_branch_null));
+ 
+  // pseudo DEF and USE KF 10-2002
+  "DEF.0"(alt(SA_def_null_null));
+  "USE.0"(alt(SA_def_null_null));
+
+  //modification for custom opcode tangw (06-04-02)
+  "CUSTOM.0"(alt(SA_custom));
+}
+
+// *************************************************************
+// Elcor Operations
+
+SECTION Elcor_Operation
+{
+  // **** Integer operations ****
+
+  // Table 2: Integer computation operations 
+  $for (class in intarith1_int intarith2_int intarith2_intshift intarith2_intmpy intarith3_intmpy) {
+    $for (op in ${OP_${class}}) {
+      $for(w in ${int_alu_widths}) {
+	${op}_${w}(op($for (clust in $0..(num_clusters-1)) {	
+                      $for (idx in $0..(integer_units-1)) { "${op}_${w}_${clust}.${idx}" }})
+		   flags(ARITHOP INT SPECULATIVE));
+      }
+    }
+  }
+
+  // Table 2: Integer computation operations 
+  $for (class in intarith2_intdiv) {
+    $for (op in ${OP_${class}}) {
+      $for(w in ${int_alu_widths}) {
+	${op}_${w}(op($for (clust in $0..(num_clusters-1)) {
+                      $for (idx in $0..(integer_units-1)) { "${op}_${w}_${clust}.${idx}" }})
+		   flags(ARITHOP INT NONSPECULATIVE));
+      }
+    }
+  }
+
+  // Saturating arithmetic
+  $for (class in intarith2_intsatadd intarith2_intsataddl intarith2_intsatsub intarith2_intsatsubl 
+                 intarith2_intsatmpy intarith2_intsatmpyl intarith3_intsatmpyadd 
+                 intarith3_intsatmpyaddn intarith3_intsatmpysub intarith3_intsatmpyrsub) {
+    $for (op in ${OP_${class}}) {
+      $for(w in ${int_alu_widths}) {
+	$for (i in $1..32) {
+	  ${op}${i}_${w}(op($for (clust in $0..(num_clusters-1)) {
+                            $for (idx in $0..(integer_units-1)) { "${op}${i}_${w}_${clust}.${idx}" }})
+			 flags(ARITHOP INT SPECULATIVE));
+	}
+      }
+    }
+  }
+
+  // Table 4: Conversion operations 
+  $for(op in ${OP_sign_extend}) {
+    $for(w in ${int_extract_widths}) {
+      ${op}_${w}(op($for (clust in $0..(num_clusters-1)) {
+                    $for (idx in $0..(integer_units-1)) { "${op}_${w}_${clust}.${idx}" }})
+		 flags(ARITHOP INT SPECULATIVE));
+    }
+  }
+
+  $for(op in ${OP_bit_extraction}) {
+    $for(w in ${int_alu_widths}) {
+      ${op}_${w}(op($for (clust in $0..(num_clusters-1)) {
+                    $for (idx in $0..(integer_units-1)) { "${op}_${w}_${clust}.${idx}" }})
+		 flags(ARITHOP INT SPECULATIVE));
+    }
+  }
+
+  // Table 5: Move operations
+
+  // Intra-cluster moves
+  $for (clust in $0..(num_clusters-1)) { 
+    $for (clust2 in $0..(num_clusters-1)) {
+      $if(${clust} == ${clust2}) {
+        $for(class in moveii movepp movegg movebb movegc movecg) {
+          $for(op in ${OP_${class}}){      
+            ${op}(op || ( $for (idx in $0..(integer_units-1)) { "${op}_${clust}_${clust2}.${idx}" })
+            flags!(ARITHOP INT SPECULATIVE));
+          }
+        }
+      }
+    } 
+  } 
+
+  // Inter-cluster moves
+  $for (clust in $0..(num_clusters-1)) { 
+    $for (clust2 in $0..(num_clusters-1)) {
+      $if(${clust} != ${clust2}) {
+        $for(class in moveii movepp movegg movebb movegc movecg vec_icm_moveii vec_icm_movemm){
+          $for(op in ${OP_${class}}){      
+            ${op}(op || ( $for (idx in $0..(icmove_bw-1)) { "${op}_${clust}_${clust2}.${idx}" })
+            flags!(ARITHOP INT SPECULATIVE));
+          }
+        }
+      }
+    } 
+  } 
+
+//  Operations to be included in the future.  mchu (7.24.2003)
+
+  $for(class in movepi moveip){
+    $for(op in ${OP_${class}}){
+      ${op}(op($for (clust in $0..(num_clusters-1)) { $for (idx in $0..(integer_units-1)) { "${op}_${clust}.${idx}" }})
+	    flags(ARITHOP INT SPECULATIVE));
+    }
+  }
+
+
+//  $for(class in movepi movegbp movegcm){
+//    $for(op in ${OP_${class}}){
+//      ${op}(op($for (clust in $0..(num_clusters-1)) {
+//               $for (idx in $0..(integer_units-1)) { "${op}_${clust}.${idx}"}})
+//	    flags(ARITHOP INT SPECULATIVE));
+//    }
+//  }
+
+  // I need this for predicate spill code. -ntclark 1/2005
+  $for(class in movegbp){
+    $for(op in ${OP_${class}}){
+      ${op}(op($for (clust in $0..(num_clusters-1)) {
+		 $for (idx in $0..(integer_units-1)) { "${op}_${clust}.${idx}"}})
+	    flags(ARITHOP INT SPECULATIVE));
+    }
+  }
+ 
+  // New Operations - Mass clear operation for PR
+  $for(op in ${OP_mass_pred_clear}) {
+    ${op}(op($for (clust in $0..(num_clusters-1)) { $for (idx in $0..(integer_units-1)) { "${op}_${clust}.${idx}" }})
+	  flags(ARITHOP INT SPECULATIVE));
+  }
+
+  $for(op in ${OP_pred_writes}){
+    ${op}(op($for (clust in $0..(num_clusters-1)) {$for (idx in $0..(integer_units-1)) { "${op}_${clust}.${idx}" }})
+	  flags(ARITHOP NULL SPECULATIVE));
+  }
+
+  // Int literal moves to GPR
+  $for(op in ${OP_int_literal_moves}) {
+    ${op}(op($for (clust in $0..(num_clusters-1)) { $for (idx in $0..(integer_units-1)) { "${op}_${clust}.${idx}" }})
+	    flags(ARITHOP INT SPECULATIVE));
+  }
+ 
+  // Table 8: Compare-to-register operations
+  $for(op in ${OP_int_compare_to_reg}) {
+    $for(w in ${int_alu_widths}) {
+      $for(ic in ${integer_compare_conds}) {
+	${op}_${w}_${ic}(op($for (clust in $0..(num_clusters-1)) {
+                            $for (idx in $0..(integer_units-1)) { "${op}_${w}_${ic}_${clust}.${idx}" }})
+			 flags(ARITHOP INT SPECULATIVE));
+      }
+    }
+  }
+
+  // Table 9: Two-target compare-to-predicate operations
+  $for(op in ${OP_int_cmp_pred_two}) {
+    $for(w in ${int_alu_widths}) {
+      $for(ic in ${integer_compare_conds}) {
+	$for(da1 in ${cmpp_dest_actions}) {
+	  $for(da2 in ${cmpp_dest_actions}) {	
+	    ${op}_${w}_${ic}_${da1}_${da2}(op($for (clust in $0..(num_clusters-1)) {
+                                              $for (idx in $0..(integer_units-1)) { 
+                                                "${op}_${w}_${ic}_${da1}_${da2}_${clust}.${idx}" }})
+					   flags(ARITHOP INT SPECULATIVE));
+	  }
+	}
+      }
+    }
+  }
+
+/*  ----------
+  // HPL-PD extension: One target compare to predicate operations. 
+  $for(op in ${OP_int_cmp_pred_one}){
+    $for(w in ${int_alu_widths}){
+      $for(ic in ${integer_compare_conds}){
+	$for(da1 in ${cmpp_dest_actions}){
+	${op}_${w}_${ic}_${da1}_${clust}(op($for (idx in $0..(integer_units-1)) 
+	                           { "${op}_${w}_${ic}_${da1}_${clust}.${idx}"})
+			        flags(ARITHOP INT SPECULATIVE));
+	}
+      }
+    }
+  }
+--------- */
+
+  // Table 16: Prepare to branch (cast on int unit)
+  $for(op in ${OP_pbrs}){
+    ${op}(op($for (clust in $0..(num_clusters-1)) { $for (idx in $0..(integer_units-1)) { "${op}_${clust}.${idx}" }})
+	  flags(ARITHOP INT SPECULATIVE));
+  }
+
+  // HPL-PD 2.0 extn
+  // literal moves to BTR
+  $for(op in ${OP_btr_literal_moves}) {
+    ${op}(op($for (clust in $0..(num_clusters-1)) { $for (idx in $0..(integer_units-1)) { "${op}_${clust}.${idx}" }})
+	  flags(ARITHOP INT SPECULATIVE));
+  }
+
+  // **** Float Operations ****
+
+  // Table 3: Floating-point computation operations
+  $for (class in floatarith1_float floatarith1_floatdiv floatarith2_float 
+                 floatarith2_floatdiv floatarith2_floatmpy floatarith3_floatmpy) {
+    $for(op in ${OP_${class}}) {
+      $for(w in ${float_widths}) {
+	${op}_${w}(op($for (clust in $0..(num_clusters-1)) { $for (idx in $0..(float_units-1)) { "${op}_${w}_${clust}.${idx}"}})
+		   flags(ARITHOP FLOAT SPECULATIVE));
+      }
+    }
+  }
+
+  // Table 4: Conversion operations 
+  $for(op in ${OP_convif} ${OP_convfi} ${OP_convff}) {
+    ${op}(op($for (clust in $0..(num_clusters-1)) { $for (idx in $0..(float_units-1)) { "${op}_${clust}.${idx}" }})
+	  flags(ARITHOP FLOAT SPECULATIVE));
+  }
+
+  // Table 5: Move operations
+
+  // Intra-cluster float moves
+  $for (clust in $0..(num_clusters-1)) { 
+    $for (clust2 in $0..(num_clusters-1)) {
+      $if(${clust} == ${clust2}) {
+        $for(op in ${OP_moveff}){
+          $for(w in ${float_widths}){
+            ${op}_${w}(op || ( $for (idx in $0..(float_units-1)) { "${op}_${w}_${clust}_${clust2}.${idx}" })
+            flags!(ARITHOP FLOAT SPECULATIVE));
+          }
+        }
+      }
+    }
+  }  
+
+  // Inter-cluster float moves
+  $for (clust in $0..(num_clusters-1)) { 
+    $for (clust2 in $0..(num_clusters-1)) {
+      $if(${clust} != ${clust2}) {
+        $for(op in ${OP_moveff} ${OP_vec_icm_moveff}) {
+          $for(w in ${float_widths}) {
+            ${op}_${w}(op || ( $for (idx in $0..(icmove_bw-1)) { "${op}_${w}_${clust}_${clust2}.${idx}" })
+            flags!(ARITHOP FLOAT SPECULATIVE));
+          }
+        }
+      }
+    }
+  }
+
+  // HPL-PD 2.0 Extn
+  // Float literal moves to FPR
+  $for(op in ${OP_float_literal_moves}) {
+    ${op}(op($for (clust in $0..(num_clusters-1)) { $for (idx in $0..(float_units-1)) { "${op}_${clust}.${idx}" }})
+	  flags(ARITHOP FLOAT SPECULATIVE));
+  }
+
+  // Table 8: Compare-to-register operations
+  $for(op in ${OP_float_compare_to_reg}) {
+    $for(w in ${float_widths}) {
+      $for(fc in ${float_compare_conds}) {
+	${op}_${w}_${fc}(op($for (clust in $0..(num_clusters-1)) { 
+                            $for (idx in $0..(float_units-1)) { "${op}_${w}_${fc}_${clust}.${idx}" }})
+			 flags(ARITHOP FLOAT SPECULATIVE));
+      }
+    }
+  }
+
+  // Table 9: Two-target compare-to-predicate operations
+  $for(op in ${OP_float_cmp_pred_two}) {
+    $for(w in ${float_widths}) {
+      $for(fc in ${float_compare_conds}) {
+	$for(da1 in ${cmpp_dest_actions}) {
+	  $for(da2 in ${cmpp_dest_actions}) {	
+	    ${op}_${w}_${fc}_${da1}_${da2}(op($for (clust in $0..(num_clusters-1)) { 
+                                              $for (idx in $0..(float_units-1)) { 
+                                              "${op}_${w}_${fc}_${da1}_${da2}_${clust}.${idx}" }})
+					   flags(ARITHOP FLOAT SPECULATIVE));
+	  }
+	}
+      }
+    }
+  }
+
+/*  ----------
+  // HPL-PD extension: One target compare to predicate operations. 
+   //friend class Primitive_op;
+  $for(op in ${OP_float_cmp_pred_one}) {
+    $for(w in ${float_widths}) {
+      $for(fc in ${float_compare_conds}) {
+	$for(da1 in ${cmpp_dest_actions}) {
+	  ${op}_${w}_${fc}_${da1}(op($for (idx in $0..(float_units-1)) { 
+                                       "${op}_${w}_${fc}_${da1}.${idx}" })
+				  flags(ARITHOP FLOAT SPECULATIVE));
+	}
+      }
+    }
+  }
+--------- */
+
+  // **** Memory Operations ****
+  
+  // Table 5: Move operations 
+  $for (class in moveif movefi) {
+    $for(op in ${OP_${class}}) {
+      $for(rh in ${float_register_halves}) {
+	${op}_${rh}(op($for (clust in $0..(num_clusters-1)) { 
+                       $for (idx in $0..(memory_units-1)) { "${op}_${rh}_${clust}.${idx}" }})
+		    flags(ARITHOP MEMORY SPECULATIVE));
+      }
+    }
+  }
+
+  // modified for new load and store opcodes tangw (06-17-02)
+
+  // Integer load ops
+  // Table 12, 13, 14: Load/store operations for cache/main memory
+  $for(ss in ${latency_src_cache_specifiers}) {
+    $for(ts in ${load_target_cache_specifiers}) {
+      $for(w in ${int_mem_widths}) {
+	$for (op in ${OP_intload}) {
+	  ${op}_${w}_${ss}_${ts}(op($for (clust in $0..(num_clusters-1)) { $for (idx in $0..(memory_units-1)) { 
+                                      "${op}_${w}_${ss}_${ts}_${clust}.${idx}" }})
+				 flags(LOADOP MEMORY SPECULATIVE));
+	}
+      }
+    }
+  }
+
+  // Float load ops
+   $for(ss in ${latency_src_cache_specifiers}) {
+    $for(ts in ${load_target_cache_specifiers}) {
+      $for(w in ${float_widths}) {
+	$for (op in ${OP_floatload}) {
+	  ${op}_${w}_${ss}_${ts}(op($for (clust in $0..(num_clusters-1)) { $for (idx in $0..(memory_units-1))
+				    { "${op}_${w}_${ss}_${ts}_${clust}.${idx}" }})
+				 flags(LOADOP MEMORY SPECULATIVE));
+	}
+      }
+    }
+  }
+
+  // Integer store ops
+  $for(ts in ${store_target_cache_specifiers}) {
+    $for(w in ${int_mem_widths}) {
+      $for (op in ${OP_intstore}) {
+	  ${op}_${w}_${ts}(op($for (clust in $0..(num_clusters-1)) { $for (idx in $0..(memory_units-1)) { 
+                                "${op}_${w}_${ts}_${clust}.${idx}" }})
+			   flags(STOREOP MEMORY NONSPECULATIVE));
+      }
+    }
+  }
+
+  // Float store ops
+  $for(ts in ${store_target_cache_specifiers}) {
+    $for(w in ${float_widths}) {
+      $for (op in ${OP_floatstore}) {
+	  ${op}_${w}_${ts}(op($for (clust in $0..(num_clusters-1)) { $for (idx in $0..(memory_units-1)) { 
+                                "${op}_${w}_${ts}_${clust}.${idx}" }})
+			   flags(STOREOP MEMORY NONSPECULATIVE));
+      }
+    }
+  }
+
+  // Int ldv ops
+  $for(op in ${OP_intload_dv}) {
+    $for(w in ${int_mem_widths}) {
+      ${op}_${w}(op($for (clust in $0..(num_clusters-1)) { 
+                    $for (idx in $0..(memory_units-1)) { "${op}_${w}_${clust}.${idx}" }})
+		 flags(LOADOP MEMORY SPECULATIVE));
+    }
+  }
+
+  // Float ldv ops
+  $for(op in ${OP_floatload_dv}) {
+    $for(w in ${float_widths}) {
+      ${op}_${w}(op($for (clust in $0..(num_clusters-1)) {
+            $for (idx in $0..(memory_units-1)) { "${op}_${w}_${clust}.${idx}" }})
+		 flags(LOADOP MEMORY SPECULATIVE));
+    }
+  }
+
+  // Explicit save/restore formats - Shail Aditya 05/26/98
+  // added vector support - parkhc 01/2007
+  $for(class in intsave brsave psave intsaveg brsaveg psaveg vec_intsave vec_intsaveg) {
+    $for(op in ${OP_${class}}) {
+      ${op}(op($for (clust in $0..(num_clusters-1)) { $for (idx in $0..(memory_units-1)) { "${op}_${clust}.${idx}" }})
+	    flags(STOREOP MEMORY NONSPECULATIVE));
+    }
+  }
+  $for(class in floatsave floatsaveg vec_floatsave vec_floatsaveg) {
+    $for(op in ${OP_${class}}) {
+      $for(width in S D) {
+	${op}_${width}(op($for (clust in $0..(num_clusters-1)) { $for (idx in $0..(memory_units-1)) { "${op}_${clust}.${idx}" }})
+	      flags(STOREOP MEMORY NONSPECULATIVE));
+      }
+    }
+  }
+  $for(class in intrestore brrestore prestore intrestoreg brrestoreg prestoreg vec_intrestore vec_intrestoreg) {
+    $for(op in ${OP_${class}}) {
+      ${op}(op($for (clust in $0..(num_clusters-1)) { $for (idx in $0..(memory_units-1)) { "${op}_${clust}.${idx}" }})
+	    flags(LOADOP MEMORY SPECULATIVE));
+    }
+  }
+  $for(class in floatrestore floatrestoreg vec_floatrestore vec_floatrestoreg) {
+    $for(op in ${OP_${class}}) {
+      $for(width in S D) {
+	${op}_${width}(op($for (clust in $0..(num_clusters-1)) { $for (idx in $0..(memory_units-1)) { "${op}_${clust}.${idx}" }})
+	      flags(LOADOP MEMORY SPECULATIVE));
+      }
+    }
+  }
+
+  // Operations for predicate spilling. These will go away soon.
+  $for(op in ${OP_pfill}) {
+    ${op}(op($for (clust in $0..(num_clusters-1)) { $for (idx in $0..(memory_units-1)) { "${op}_${clust}.${idx}" }}) 
+	  flags(LOADOP MEMORY SPECULATIVE));
+  }
+  $for(op in ${OP_pspill}) {
+    ${op}(op($for (clust in $0..(num_clusters-1)) { $for (idx in $0..(memory_units-1)) { "${op}_${clust}.${idx}" }}) 
+	  flags(STOREOP MEMORY NONSPECULATIVE));
+  }
+
+
+  // HPL-PD 2.0 Extn
+  // **** Local Memory Operations ****
+  $if (${local_memories} != 0) {
+    $for ((lmid in $1..(local_memories)) (idx in local_memory_units_per_lmem)) {
+      $for(op in ${OP_intload_local}) {
+	$for(w in ${int_mem_widths}) {
+	  ${op}_${w}_L${lmid}(op($for (clust in $0..(num_clusters-1)) { $for (jdx in $0..(${idx}-1)) { 
+                                "${op}_${w}_L${lmid}_${clust}.${jdx}"}})
+			   flags(LOADOP LOCALMEMORY SPECULATIVE));
+	}
+      }
+      $for(op in ${OP_floatload_local}) {
+	$for(w in ${float_widths}) {
+	  ${op}_${w}_L${lmid}(op($for (clust in $0..(num_clusters-1)) { $for (jdx in $0..(${idx}-1)) { 
+                                "${op}_${w}_L${lmid}_${clust}.${jdx}"}})
+			   flags(LOADOP LOCALMEMORY SPECULATIVE));
+	}
+      }
+      $for(op in ${OP_intstore_local}) {
+	$for(w in ${int_mem_widths}) {
+	  ${op}_${w}_L${lmid}(op($for (clust in $0..(num_clusters-1)) { $for (jdx in $0..(${idx}-1)) { 
+                                "${op}_${w}_L${lmid}_${clust}.${jdx}"}})
+			   flags(STOREOP LOCALMEMORY NONSPECULATIVE));
+	}
+      }
+      $for(op in ${OP_floatstore_local}) {
+	$for(w in ${float_widths}) {
+	  ${op}_${w}_L${lmid}(op($for (clust in $0..(num_clusters-1)) { $for (jdx in $0..(${idx}-1)) { 
+                                "${op}_${w}_L${lmid}_${clust}.${jdx}"}})
+			   flags(STOREOP LOCALMEMORY NONSPECULATIVE));
+	}
+      }
+    }
+  }
+
+  // **** Branch Operations ****
+  $for (op in ${OP_branches} ${OP_dv_branches} ${OP_swp_branches}) {
+    ${op}(op($for (clust in $0..(num_clusters-1)) { $for (idx in $0..(branch_units-1)) { "${op}_${clust}.${idx}" }}) 
+	  flags(BRANCHOP BRANCH NONSPECULATIVE));
+  }
+
+  // *** Assign commutative flag to integer arith/cmp operations ***
+  $for(op in ${OP_int_commutatives}) {
+      $for(w in ${int_alu_widths}){
+	${op}_${w}(flags||(is_comm));
+      }
+  }
+  $for(op in ${OP_cmp_commutatives}) {
+	${op}(flags||(is_comm));
+  }
+
+  // **** Dummy Operations ****
+  NO_OP(op("NO_OP.0") flags(NULLOP NULL NONSPECULATIVE));
+  M_NO_OP(op("M_NO_OP.0") flags(NULLOP NULL NONSPECULATIVE));
+  PROLOGUE(op("PROLOGUE.0") flags(NULLOP NULL SPECULATIVE));
+  EPILOGUE(op("EPILOGUE.0") flags(NULLOP NULL SPECULATIVE));
+  DEFINE(op("DEFINE.0") flags(NULLOP NULL SPECULATIVE));
+  // Shivarama Rao. Added new opcodes for pseudo load and removed the
+  // Overloaded PSEUDO_LOAD operation
+  PSEUDO_LOAD_LITERAL(op("PSEUDO_LOAD_LITERAL.0") flags(NULLOP NULL SPECULATIVE));
+  PSEUDO_LOAD_SCALAR(op("PSEUDO_LOAD_SCALAR.0") flags(NULLOP NULL SPECULATIVE));
+  PSEUDO_LOAD_SCALAR_ARRAY(op("PSEUDO_LOAD_SCALAR_ARRAY.0") flags(NULLOP NULL SPECULATIVE));
+  PSEUDO_LOAD_EVR(op("PSEUDO_LOAD_EVR.0") flags(NULLOP NULL SPECULATIVE));
+  // Shivarama Rao. Added new opcodes for pseudo store and removed the
+  // Overloaded PSEUDO_STORE operation
+  PSEUDO_STORE_SCALAR(op("PSEUDO_STORE_SCALAR.0") flags(NULLOP NULL SPECULATIVE));
+  PSEUDO_STORE_SCALAR_ARRAY(op("PSEUDO_STORE_SCALAR_ARRAY.0") flags(NULLOP NULL SPECULATIVE));
+  PSEUDO_STORE_EVR(op("PSEUDO_STORE_EVR.0") flags(NULLOP NULL SPECULATIVE));
+  PSEUDO_PRINT(op("PSEUDO_PRINT.0") flags(NULLOP NULL SPECULATIVE));
+  PSEUDO_INIT_MEM(op("PSEUDO_INIT_MEM.0") flags(NULLOP NULL SPECULATIVE));
+  ALLOC(op("ALLOC.0") flags(NULLOP NULL SPECULATIVE));
+  DUMMY_BR(op("DUMMY_BR.0") flags(NULLOP NULL NONSPECULATIVE));
+  C_MERGE(op("C_MERGE.0") flags(NULLOP NULL NONSPECULATIVE));
+  D_SWITCH(op("D_SWITCH.0") flags(NULLOP NULL NONSPECULATIVE));
+  D_MERGE(op("D_MERGE.0") flags(NULLOP NULL NONSPECULATIVE));
+  REMAP(op("REMAP.0") flags(NULLOP NULL NONSPECULATIVE));
+  BRDIR(op("BRDIR.0") flags(NULLOP NULL NONSPECULATIVE));
+  BRIND(op("BRIND.0") flags(NULLOP NULL NONSPECULATIVE));
+  
+  //pseudo DEF and USE for multilevel clustering
+  DEF(op("DEF.0") flags(NULLOP NULL SPECULATIVE));
+  USE(op("USE.0") flags(NULLOP NULL SPECULATIVE));
+
+  CUSTOM(op("CUSTOM.0") flags(NULLOP NULL SPECULATIVE ISCUSTOM));
+
+  //============================================================
+  // SLARSEN: Vector operations
+
+  $for (clust in $0..(num_clusters-1)) {
+
+    // Vector integer computation operations 
+    $for (class in vec_intarith2_int vec_intarith2_intmpy){
+      $for (op in ${OP_${class}}){
+        $for(w in ${int_alu_widths}){
+  	${op}_${w}(op || ($for (idx in $0..(vec_integer_units-1)) { "${op}_${w}_${clust}.${idx}"})
+  		   flags ! (ARITHOP INT SPECULATIVE));
+        }
+      }
+    }
+  
+    $for (class in vec_intarith2_intdiv){
+      $for (op in ${OP_${class}}){
+        $for(w in ${int_alu_widths}){
+  	${op}_${w}(op || ($for (idx in $0..(vec_integer_units-1)) { "${op}_${w}_${clust}.${idx}"})
+  		   flags ! (ARITHOP INT NONSPECULATIVE));
+        }
+      }
+    }
+  
+    // Vector floating-point computation operations
+    $for (class in vec_floatarith1_float vec_floatarith1_floatdiv vec_floatarith2_float vec_floatarith2_floatdiv vec_floatarith2_floatmpy){
+      $for(op in ${OP_${class}}){
+        $for(w in ${float_widths}){
+  //	${op}_${w}(op($for (idx in $0..(vec_float_units-1)) { "${op}_${w}.${idx}"})
+  	${op}_${w}(op || ($for (idx in $0..(vec_integer_units-1)) { "${op}_${w}_${clust}.${idx}"})
+  		   flags ! (ARITHOP FLOAT SPECULATIVE));
+        }
+      }
+    }
+  
+    // Vector conversion operations 
+    $for(op in ${OP_vec_convif} ${OP_vec_convfi} ${OP_vec_convff}){
+  //  ${op}(op($for (idx in $0..(vec_float_units-1)) { "${op}.${idx}"})
+      ${op}(op || ($for (idx in $0..(vec_integer_units-1)) { "${op}_${clust}.${idx}"})
+  	  flags ! (ARITHOP FLOAT SPECULATIVE));
+    }
+  
+    $for(op in ${OP_vec_sign_extend}){
+      $for(w in ${int_extract_widths}){
+        ${op}_${w}(op || ($for (idx in $0..(vec_integer_units-1)) { "${op}_${w}_${clust}.${idx}"})
+  		   flags ! (ARITHOP INT SPECULATIVE));
+      }
+    }
+  
+    // Vector transfer operations (between scalar and vector regs)
+    $for (class in vec_intvsmove vec_intsvmove){
+      $for (op in ${OP_${class}}){
+        ${op}(op || ($for (idx in $0..(vec_integer_xfr_units-1)) { "${op}_${clust}.${idx}"})
+              flags ! (ARITHOP INT SPECULATIVE));
+      }
+    }
+  
+    $for (class in vec_floatvsmove vec_floatsvmove){
+      $for (op in ${OP_${class}}){
+        $for (w in ${float_widths}){
+  //      ${op}_${w}(op($for (idx in $0..(vec_float_xfr_units-1)) { "${op}_${w}.${idx}"})
+          ${op}_${w}(op || ($for (idx in $0..(vec_integer_xfr_units-1)) { "${op}_${w}_${clust}.${idx}"})
+                flags ! (ARITHOP FLOAT SPECULATIVE));
+        }
+      }
+    }
+  
+    // Vector splat operations
+    $for (op in ${OP_vec_intsplat}){
+      ${op}(op || ($for (idx in $0..(vec_integer_xfr_units-1)) { "${op}_${clust}.${idx}"})
+            flags ! (ARITHOP INT SPECULATIVE));
+    }
+  
+    $for (op in ${OP_vec_floatsplat}){
+      $for (w in ${float_widths}){
+  //    ${op}_${w}(op($for (idx in $0..(vec_float_xfr_units-1)) { "${op}_${w}.${idx}"})
+        ${op}_${w}(op || ($for (idx in $0..(vec_integer_xfr_units-1)) { "${op}_${w}_${clust}.${idx}"})
+                flags ! (ARITHOP FLOAT SPECULATIVE));
+      }
+    }
+  
+    // Vector move operations
+    $for(class in vec_moveii){
+      $for(op in ${OP_${class}}){
+        ${op}(op || ($for (idx in $0..(vec_integer_units-1)) { "${op}_${clust}.${idx}"})
+  	    flags ! (ARITHOP INT SPECULATIVE));
+      }
+    }
+  
+    $for(op in ${OP_vec_moveff}){
+      $for(w in ${float_widths}){
+  //    ${op}_${w}(op($for (idx in $0..(vec_float_units-1)) { "${op}_${w}.${idx}"})
+        ${op}_${w}(op || ($for (idx in $0..(vec_integer_units-1)) { "${op}_${w}_${clust}.${idx}"})
+  		 flags ! (ARITHOP FLOAT SPECULATIVE));
+      }
+    }
+  
+    // Vector integer load ops
+    $for(w in ${int_mem_widths}){
+      $for(class in vec_intload vec_intloadgdisp vec_intload_elem vec_intloadgdisp_elem){
+        $for (op in ${OP_${class}}){
+          ${op}_${w}_C1_C1(op || ($for (idx in $0..(memory_units-1))
+  				{ "${op}_${w}_C1_C1_${clust}.${idx}"})
+  			      flags ! (LOADOP MEMORY SPECULATIVE));
+        }
+      }
+    }
+  
+    // Vector float load ops
+    $for(w in ${float_widths}){
+      $for(class in vec_floatload vec_floatloadgdisp vec_floatload_elem vec_floatloadgdisp_elem) {
+        $for (op in ${OP_${class}}){
+          ${op}_${w}_C1_C1(op || ($for (idx in $0..(memory_units-1))
+  				{ "${op}_${w}_C1_C1_${clust}.${idx}"})
+  			      flags ! (LOADOP MEMORY SPECULATIVE));
+        }
+      }
+    }
+  
+    // Vector integer store ops
+    $for(w in ${int_mem_widths}){
+      $for (class in vec_intstore vec_intstoregdisp vec_intstore_elem vec_intstoregdisp_elem){
+        $for (op in ${OP_${class}}){
+          ${op}_${w}_C1(op || ($for (idx in $0..(memory_units-1))
+  			     { "${op}_${w}_C1_${clust}.${idx}"})
+  			   flags ! (STOREOP MEMORY NONSPECULATIVE));
+        }
+      }
+    }
+  
+    // Vector float store ops
+    $for(w in ${float_widths}){
+      $for (class in vec_floatstore vec_floatstoregdisp vec_floatstore_elem vec_floatstoregdisp_elem){
+        $for (op in ${OP_${class}}){
+          ${op}_${w}_C1(op || ($for (idx in $0..(memory_units-1))
+  			     { "${op}_${w}_C1_${clust}.${idx}"})
+  			  flags ! (STOREOP MEMORY NONSPECULATIVE));
+        }
+      }
+    }
+  
+    // Vectore permute ops
+    $for(op in ${OP_vec_intperm}){
+      ${op}(op || ($for (idx in $0..(vec_integer_perm_units-1)) { "${op}_${clust}.${idx}"})
+  	     flags ! (ARITHOP INT SPECULATIVE));
+    }
+  
+    $for(op in ${OP_vec_floatperm}){
+      $for(w in ${float_widths}){
+  //    ${op}_${w}(op($for (idx in $0..(vec_float_perm_units-1)) { "${op}_${w}.${idx}"})
+        ${op}_${w}(op || ($for (idx in $0..(vec_integer_perm_units-1)) { "${op}_${w}_${clust}.${idx}"})
+  		  flags ! (ARITHOP FLOAT SPECULATIVE));
+      }
+    }
+  }
+}

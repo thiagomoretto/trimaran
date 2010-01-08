@@ -1,0 +1,381 @@
+
+/////////////////////////////////////////////////////////////////////////////
+//
+//      File:           hpl_pd_ops.hmdes2
+//      Authors:        Vinod Kathail, Shail Aditya
+//      Created:        March 20, 1998
+//      Description:    HPL-PD Architecture Opcode Abbreviations
+//
+/////////////////////////////////////////////////////////////////////////////
+// HPL-PD Operation Modifiers and Names (Architecture Version 1.0)
+
+// Modifiers used in constructing opcodes. Not all modifiers are included; 
+// ones not included are indicated in comments.
+
+$def int_alu_widths W
+$def int_mem_widths B H W
+$def int_extract_widths B H W 
+$def float_widths S D
+$def float_register_halves L U
+$def integer_compare_conds FALSE TRUE EQ NEQ LT LLT LEQ LLEQ GT LGT GEQ LGEQ
+// Not in --               SV NSV OD EV
+
+$def float_compare_conds FALSE EQ LT LEQ GT GEQ NEQ TRUE
+// Not in -- Ones that are true for unordered operands are not in, i.e., 
+//                          UFALSE UEQ ULT ULEQ UGT UGEQ UNEQ UTRUE
+
+$def cmpp_uncond_actions     UN UC
+$def cmpp_cond_actions       CN CC
+$def cmpp_or_actions         ON OC
+$def cmpp_and_actions        AN AC
+$def cmpp_dest_actions ${cmpp_uncond_actions} ${cmpp_or_actions} ${cmpp_and_actions}
+// Not in --           CN CC
+
+// Define Latency Levels -- Shail Aditya 11/24/99
+$def C1 1
+$def C2 2
+$def C3 3
+
+$def latency_src_cache_specifiers  C1 C2 C3
+// Not in --                       V1
+$def load_target_cache_specifiers  C1 C2 C3
+// Not in --                       V1
+$def store_target_cache_specifiers C1 C2 C3
+// Not in --                       V1
+// HPL-PD 2.0 Extn: Local memory specifiers
+$def local_memory_specifiers       L1 L2 L3 L4 L5 L6 L7 L8 L9 L10 L11 L12 L13 L14 L15 L16 L17 L18 L19 L20 L21 L22 L23 L24 L25 L26 L27 L28 L29 L30 L31 L32
+
+$def swp_branch_direction_specifiers B F
+
+// Operation names (in the order of appearance in HPL-PD Manual)
+
+// Table 2: Integer computation operations 
+// HPL-PD 2.0 Extn:
+// In     -- MPYADD MPYADDN MPYRSUB MPYSUB (DIVFLOOR, DIVCEIL)
+
+$def OP_intarith1_int ABS
+$def OP_intarith2_int ADD ADD_CARRY ADDL ADDL_CARRY SH1ADDL SH2ADDL SH3ADDL AND ANDCM NAND NOR OR ORCM SUB SUB_CARRY SUBL_CARRY SUBL XOR XORCM MIN MAX 
+
+$def OP_intarith2_intshift SHL SHR SHLA SHRA
+$def OP_intarith2_intdiv DIV DIVL REM REML 
+$def OP_intarith2_intmpy MPY MPYL MPY_WIDE MPYL_WIDE
+$def OP_intarith3_intmpy MPYADD MPYADDN MPYRSUB MPYSUB
+
+// Complex opcode extension: Saturating arithmetic 
+
+$def OP_intarith2_intsatadd SADD
+
+$def OP_intarith2_intsataddl SADDL
+
+$def OP_intarith2_intsatsub SSUB
+
+$def OP_intarith2_intsatsubl SSUBL
+
+$def OP_intarith2_intsatmpy SMPY
+
+$def OP_intarith2_intsatmpyl SMPYL
+
+$def OP_intarith3_intsatmpyadd SMPYADD
+
+$def OP_intarith3_intsatmpyaddn SMPYADDN
+
+$def OP_intarith3_intsatmpysub SMPYSUB
+
+$def OP_intarith3_intsatmpyrsub SMPYRSUB
+
+// Table 3: Floating-point computation operations
+$def OP_floatarith1_float FABS 
+$def OP_floatarith1_floatdiv FRCP FSQRT
+$def OP_floatarith2_float FADD FMAX FMIN FSUB
+$def OP_floatarith2_floatdiv FDIV
+$def OP_floatarith2_floatmpy FMPY 
+$def OP_floatarith3_floatmpy FMPYADD FMPYADDN FMPYRSUB FMPYSUB 
+
+// Table 4: Conversion operations 
+// unsigned converts
+// Not in -- CONVLWS CONVLWD CONVLSW CONVLDW
+// HPL-PD Cleanup: All conversion ops are cast on floating point unit
+$def OP_convif_S CONVWS
+$def OP_convif_D CONVWD
+$def OP_convif ${OP_convif_S} ${OP_convif_D}
+$def OP_convfi_S CONVSW 
+$def OP_convfi_D CONVDW
+$def OP_convfi ${OP_convfi_S} ${OP_convfi_D}
+$def OP_convff CONVSD CONVDS
+$def OP_sign_extend EXTS EXTZ
+
+$def OP_bit_extraction EXTRACT EXTRACTU DEPOSIT
+
+// Table 5: Move operations
+// Not in -- LDCM
+$def OP_moveii MOVE
+$def OP_moveif MOVEGF
+$def OP_movefi MOVEFG
+$def OP_moveff MOVEF
+$def OP_movepi MOVEPG 
+
+// Predicate bit extract and move -- Shail Aditya 05/26/98
+// Not in - MOVEGBGT MOVEGBFT MOVEGBPT MOVEGBBT
+$def OP_movegbp MOVEGBP
+$def OP_movegcm MOVEGCM
+
+// HPL-PD 2.0 Extn:
+// For the time being, I am going to retain MOVE operation as is, since it 
+// requires quite a few changes in the compiler. It will be replaced by
+// separate moves later:
+// In - Split moves instead of MOVE
+$def OP_movegg MOVEGG
+$def OP_movegc MOVEGC
+$def OP_movecg MOVECG
+$def OP_movebb MOVEBB
+$def OP_split_moves ${OP_movegg} ${OP_movegc} ${OP_movecg} ${OP_movebb}
+// In - Int literal moves to GPR
+$def OP_int_literal_moves MOVELG MOVELGX MOVELGS
+// In - Float literal moves to FPR
+$def OP_float_literal_moves MOVELF MOVELFS
+// In - Mass clear operation for PR
+$def OP_mass_pred_clear PRED_CLEAR_ALL PRED_CLEAR_ALL_STATIC PRED_CLEAR_ALL_ROTATING
+// In - Move pseudo operations. These are temporarily marked as real
+// architecture ops rather than pseudo compiler ops.
+$def OP_moveip MOVEGP 
+$def OP_movepp MOVEPP 
+$def OP_pred_writes PRED_SET PRED_CLEAR
+
+// Table 8: Compare-to-register operations
+// Integer ones 
+$def OP_int_compare_to_reg CMPR
+// Floating-point ones
+$def OP_float_compare_to_reg FCMPR
+
+// Table 9: Two-target compare-to-predicate operations
+// Integer ones
+$def OP_int_cmp_pred_two CMPP
+// Floating ones 
+$def OP_float_cmp_pred_two FCMPP
+
+// HPL-PD 2.0 Extn: One target compare to predicate operations. 
+// Integer ones
+// Not in -- CMPPI
+// $def OP_int_cmp_pred_one CMPPI
+// Floating ones
+// Not in -- FCMPPI
+// $def OP_float_cmp_pred_one FCMPPI
+
+// Table 12, 13, 14: Load/store operations for cache/main memory
+// Integer load ops
+// HPL-PD 2.0 Extn:
+// NOT in -- LG LGI LDSG LDSGI
+//           LX LIX LDSX LDSIX LGX LGIX LDSGX LDSGIX
+$def OP_intload_std L
+$def OP_intloadinc_std LI
+$def OP_intload_spec LDS
+$def OP_intloadinc_spec LDSI
+$def OP_intloadgdisp_std LG
+
+/*new integer load operations LX, LGX, LMX(tangw 05-17-02)*/
+$def OP_intloadext_std LX
+$def OP_intloadgdispext_std LGX
+
+$def OP_intload ${OP_intload_std} ${OP_intloadinc_std} ${OP_intload_spec} ${OP_intloadinc_spec} ${OP_intloadgdisp_std} ${OP_intloadext_std} ${OP_intloadgdispext_std}
+
+// Float load ops
+// HPL-PD 2.0 Extn:
+// NOT in -- FLG FLM FLGI FLDSG FLDSM FLDSGI
+$def OP_floatload_std FL
+$def OP_floatloadinc_std FLI
+$def OP_floatload_spec FLDS
+$def OP_floatloadinc_spec FLDSI
+
+/*new floating load operations FLG & FLM (tangw 05-17-02)*/
+$def OP_floatloadgdisp_std FLG
+
+$def OP_floatload ${OP_floatload_std} ${OP_floatloadinc_std} ${OP_floatload_spec} ${OP_floatloadinc_spec} ${OP_floatloadgdisp_std}
+
+// Integer store ops
+// HPL-PD 2.0 Extn:
+// NOT in -- SG SM SGI
+$def OP_intstore_std S
+$def OP_intstoreinc_std SI
+
+/*new store operations SG & SM (tangw 05-17-02)*/
+$def OP_intstoregdisp_std SG
+
+$def OP_intstore ${OP_intstore_std} ${OP_intstoreinc_std} ${OP_intstoregdisp_std}
+
+
+// Float store ops
+// HPL-PD 2.0 Extn:
+// NOT in -- FSG FSM FSGI
+$def OP_floatstore_std FS
+$def OP_floatstoreinc_std FSI
+
+/*new floating point store operations FSM & FSG (tangw 05-17-02)*/
+$def OP_floatstoregdisp_std FSG
+
+$def OP_floatstore ${OP_floatstore_std} ${OP_floatstoreinc_std} ${OP_floatstoregdisp_std}
+
+// Data verify load operations 
+// Int ldv ops
+$def OP_intload_dv LDV
+// Float ldv ops
+$def OP_floatload_dv FLDV
+// HPL-PD 2.0 Extn:
+// NOT in -- LDVG LDVM
+// NOT in -- FLDVG FLDVM
+
+// HPL-PD Cleanup: There are no prefetch operations anymore. 
+
+// Operations for spilling -- Shail Aditya 05/26/98
+$def OP_intsave SAVE
+$def OP_intrestore RESTORE
+$def OP_floatsave FSAVE
+$def OP_floatrestore FRESTORE
+$def OP_brsave BSAVE
+$def OP_brrestore BRESTORE
+$def OP_psave PSAVE
+$def OP_prestore PRESTORE
+
+$def OP_intsaveg SAVEG
+$def OP_intrestoreg RESTOREG
+$def OP_floatsaveg FSAVEG
+$def OP_floatrestoreg FRESTOREG
+$def OP_brsaveg BSAVEG
+$def OP_brrestoreg BRESTOREG
+$def OP_psaveg PSAVEG
+$def OP_prestoreg PRESTOREG
+
+// parkhc 01/2007 : vector support
+$def OP_vec_intsave VSAVE
+$def OP_vec_intrestore VRESTORE
+$def OP_vec_floatsave VFSAVE
+$def OP_vec_floatrestore VFRESTORE
+$def OP_vec_intsaveg VSAVEG
+$def OP_vec_intrestoreg VRESTOREG
+$def OP_vec_floatsaveg VFSAVEG
+$def OP_vec_floatrestoreg VFRESTOREG
+
+// Operations for predicate spilling. 
+// TBD: These will go away soon, save/restore via CR
+$def OP_pfill PRED_LOAD_ALL
+$def OP_pspill PRED_STORE_ALL
+
+// HPL-PD 2.0 Extn: Local memory load/store operations
+// Int load ops 
+// Not in -- LLX LLI LLIX LLG LLGX LLM LLMX LLGI LLGIX
+$def OP_intload_local LL
+// Float load ops
+// Not in -- FLLI FLLG FLLM FLGI
+$def OP_floatload_local FLL
+// Int store ops
+// Not in -- SLI SLG SLM SLGI
+$def OP_intstore_local SL
+// Float store ops
+// Not in -- FSLI FSLG FSLM FSLGI
+$def OP_floatstore_local FSL
+
+// Table 16: Prepare to branch
+$def OP_pbrs PBR
+// HPL-PD 2.0 Extn:
+// In -  literal moves to BTR
+$def OP_btr_literal_moves MOVELB MOVELBX MOVELBS
+
+// Table 17: Branch operations
+$def OP_brucond BRU RTS
+$def OP_brcond BRCT BRCF 
+$def OP_brlink BRL BRLP
+$def OP_brlc BRLC
+$def OP_branches ${OP_brucond} ${OP_brcond} ${OP_brlink} ${OP_brlc}
+$def OP_brdvi BRDVI
+$def OP_brdvf BRDVF
+$def OP_dv_branches ${OP_brdvi} ${OP_brdvf}
+$def OP_brtop BRF_B_B_F BRF_F_F_F
+$def OP_swp_branches ${OP_brtop}
+// Not in - BRW and all other combinations of direction modifiers
+// psuedo branch ops
+// BRDIR, BRIND are compiler psuedo ops with branch latency
+// RTS is an alias of BRU but it is kept separately for now
+
+// HPL-PD 2.0 Extn:
+// PBR+Branch operations: GPR/Short lit form
+// Not in -- BRUR BRUA BRCTR BRCTA BRCFR BRCFA BRLR BRLA BRLCR BRLCA 
+//           BRFR BRFA BRWR BRWA 
+// Pseudo branch operations for control-flow analysis etc.
+// Not in -- BRDVIR BRDVIA BRDVFR BRDVFA 
+// PBR+Branch operations: medium lit form
+// Not in -- BRURL BRUAL BRCTRL BRCTAL BRCFRL BRCFAL BRLRL BRLAL BRLCRL BRLCAL 
+//           BRFRL BRFAL BRWRL BRWAL 
+// Pseudo branch operations for control-flow analysis etc.
+// Not in -- BRDVIRL BRDVIAL BRDVFRL BRDVFAL 
+
+// Elcor Compiler Dummy/Pseudo Operations
+// No ops should not be treated as dummy ops (i.e. NULLOP NULL)
+// NO_OP M_NO_OP 
+// Compiler dummy ops with null latency
+// PROLOGUE EPILOGUE DEFINE ALLOC DUMMY_BR C_MERGE D_MERGE REMAP
+// Compiler dummy ops with branch latency
+// D_SWITCH BRDIR BRIND
+
+// Commutative operations.  This is not a complete list, but its a start.
+$def OP_int_commutatives {}
+     $for (op in ${OP_intarith2_intsatadd} ${OP_intarith2_intsataddl} ${OP_intarith2_intsatmpy} ${OP_intarith2_intsatmpyl})      {
+       $for (i in $1..32) {
+	 $def OP_int_commutatives ${OP_int_commutatives} ${op}${i}
+       }
+    }
+
+$def OP_int_commutatives ${OP_int_commutatives} ADD ADD_CARRY ADDL ADDL_CARRY AND ANDCM NAND NOR OR ORCM XOR XORCM MPY MPYL MPY_WIDE MPYL_WIDE
+$def OP_cmp_commutatives CMPP_W_EQ_UN_UC CMPP_W_EQ_UN_UN CMPP_W_NEQ_UN_UC CMPP_W_NEQ_UN_UN
+
+// SLARSEN: Vector ops
+$def OP_vec_intarith2_int VADD VADDL VSUB VSUBL VMIN VMAX VOR VAND
+$def OP_vec_intarith2_intdiv VDIV VDIVL VREM VREML 
+$def OP_vec_intarith2_intmpy VMPY VMPYL
+
+$def OP_vec_floatarith1_float VFABS 
+$def OP_vec_floatarith1_floatdiv VFSQRT
+$def OP_vec_floatarith2_float VFADD VFMAX VFMIN VFSUB
+$def OP_vec_floatarith2_floatdiv VFDIV
+$def OP_vec_floatarith2_floatmpy VFMPY 
+
+$def OP_vec_convif VCONVWS VCONVWD
+$def OP_vec_convfi VCONVSW VCONVDW
+$def OP_vec_convff VCONVSD VCONVDS
+$def OP_vec_sign_extend VEXTS
+
+$def OP_vec_intvsmove VSMOVE
+$def OP_vec_intsvmove SVMOVE
+$def OP_vec_floatvsmove VSFMOVE
+$def OP_vec_floatsvmove SVFMOVE
+
+$def OP_vec_moveii VMOVE
+$def OP_vec_moveff VMOVEF
+
+$def OP_vec_icm_moveii VMOVEGG
+$def OP_vec_icm_moveff VMOVEFF
+$def OP_vec_icm_movemm VMOVEMM
+
+$def OP_vec_intload	VL
+$def OP_vec_intstore	VS
+$def OP_vec_floatload	VFL
+$def OP_vec_floatstore	VFS
+
+$def OP_vec_intloadgdisp    VLG
+$def OP_vec_floatloadgdisp  VFLG
+$def OP_vec_intstoregdisp   VSG
+$def OP_vec_floatstoregdisp VFSG
+
+$def OP_vec_intload_elem	VLE
+$def OP_vec_intstore_elem	VSE
+$def OP_vec_floatload_elem	VFLE
+$def OP_vec_floatstore_elem	VFSE
+
+$def OP_vec_intloadgdisp_elem    VLGE
+$def OP_vec_floatloadgdisp_elem  VFLGE
+$def OP_vec_intstoregdisp_elem   VSGE
+$def OP_vec_floatstoregdisp_elem VFSGE
+
+$def OP_vec_intperm	VPERM
+$def OP_vec_floatperm	VFPERM
+
+$def OP_vec_intsplat	VSPLAT
+$def OP_vec_floatsplat	VFSPLAT

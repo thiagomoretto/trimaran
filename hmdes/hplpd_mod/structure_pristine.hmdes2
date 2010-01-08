@@ -1,0 +1,324 @@
+
+/*
+ * Preliminary pristine Hmdes2 structure.
+ * 
+ * Created by John C. Gyllenhaal 2/10/95
+ * Modified by Shail Aditya 01/29/96
+ * Custom opcode goodness by Nate Clark 5/3/03
+ */
+
+
+/*
+ * Register Classes
+ */
+CREATE SECTION Register_Class
+{
+}
+
+/*
+ * Stack descriptor
+ */
+CREATE SECTION Stack_Descr
+  REQUIRED Dir (STRING);
+  REQUIRED RetAddrThruStack (STRING);
+  REQUIRED RetAddrSize (INT);
+  REQUIRED Alignment (INT);
+{
+}
+
+/*
+ * Macro Classes
+ */
+CREATE SECTION Macro_Class
+{
+}
+
+/*
+ * Macro
+ */
+CREATE SECTION Macro
+  OPTIONAL class (LINK(Macro_Class)*);
+  OPTIONAL alias (LINK(Macro)*);
+{
+}
+
+/* 
+ * Specifies the registers in the architectures.
+ * Also specifies how these registers overlap each other.  The overlapping
+ * conditions are assumed to be completely specified (up to the compiler
+ * to check for errors in this case).
+ */
+CREATE SECTION Register
+  OPTIONAL overlaps (LINK(Register)*);
+  OPTIONAL class (LINK(Register_Class)*);
+  OPTIONAL macro (LINK(Macro)*);
+{
+}
+
+/*
+ * Defines a set of integer literals. For example, if you wanted -255 though 127,
+ * you would say min(-255) max(127) step(1). If you only wanted the odd numbers
+ * in that range you'd say step(2) instead. ntclark 10/11/05
+ */
+CREATE SECTION Constant_Range
+  REQUIRED min(INT);
+  REQUIRED max(INT);
+  REQUIRED step(INT);
+{
+}
+
+CREATE SECTION Constant_Set
+  REQUIRED ranges(LINK(Constant_Range)*);
+{
+}
+
+/* **** Shail Aditya 01/29/96 ****
+ * Classifies the registers into register files with static and rotating parts.
+ * Also specifies their widths and whether they have a speculative tag bit.
+ */
+
+CREATE SECTION Register_File
+REQUIRED width(INT);
+// RMR add optional vector length field
+OPTIONAL vector_length(INT);
+OPTIONAL static(LINK(Register)*);
+OPTIONAL rotating(LINK(Register)*);
+OPTIONAL speculative(INT);
+// Shail Aditya 07/18/97 - added reverse map from physical file to virtual ioset
+OPTIONAL virtual(STRING);
+OPTIONAL consts(LINK(Constant_Set));
+OPTIONAL doublelist(DOUBLE*);   // actual literals
+OPTIONAL donot_allocate();
+{
+}
+
+/* 
+ * Specifies the field types supported by the architecture's 
+ * instruction set (assembly language).
+ *
+ * Currently uses LINKs to specify the hierarchy of field types.
+ *
+ * When the CHILD datum type gets implemented, the LINK will get changed
+ * to CHILD.  For example, lit11 is compatible with lit5.
+ *
+ * **** Shail Aditya 01/29/96 ****
+ * Added a link to a set of register files. 
+ * **** Shail Aditya 06/11/97 ****
+ * Changed set of register files to a single register file. IO Sets should
+ * always be represented using compatible_with field. 
+ */
+CREATE SECTION Field_Type
+  OPTIONAL compatible_with(LINK(Field_Type)*);
+  OPTIONAL regfile(LINK(Register_File));
+{
+}
+
+/*
+ * Specifies the architecture's assembly language operation formats
+ */
+CREATE SECTION Operation_Format
+  OPTIONAL pred(LINK(Field_Type)*);
+  OPTIONAL src(LINK(Field_Type)*);
+  OPTIONAL dest(LINK(Field_Type)*);
+{
+}
+
+/* 
+ * Specifies the architecture's resources (real or for only
+ * interlock purposes)
+ * Added a mechanism for counted identical resources
+ * -- Shail Aditya 08/11/98
+ */
+CREATE SECTION Resource
+OPTIONAL count(INT);
+OPTIONAL virtual(INT);
+{
+}
+
+/*
+ * Specifies the characteristic's of the architecture's resource usage.
+ * Namely, when a resource is used by an operation relative to
+ * issue time.
+ *
+ * Possible extension:  Specify if resource used if operation predicate
+ * 			squashed.
+
+ * Added an optional field for counting the number of resources used
+ * on each cycle, defaulting to 1 -- Shail Aditya 08/12/98
+ */
+CREATE SECTION Resource_Usage
+  REQUIRED use(LINK(Resource));
+  REQUIRED time(INT INT*);
+  OPTIONAL count(INT INT*); 
+{
+}
+
+/*
+ * Specifies resource units (such as function units) that should
+ * be treated like a unit by the scheduler/simulator
+ */
+CREATE SECTION Resource_Unit
+  REQUIRED use(LINK(Resource_Usage) LINK(Resource_Usage)*);
+{
+}
+
+/* 
+ * Specifies option for the reservation tables.  For example,
+ * that any one of the ialus may be used.
+ */
+CREATE SECTION Table_Option
+  REQUIRED one_of(LINK(Resource_Unit|Resource_Usage) 
+		  LINK(Resource_Unit|Resource_Usage)*);
+{
+}
+
+
+/* 
+ * Specifies the reservation tables used to model the architecture.
+ * (How resources are used as an operation executes.) 
+ * 
+ */
+CREATE SECTION Reservation_Table
+  REQUIRED use(LINK(Table_Option|Resource_Unit|Resource_Usage)*);
+{
+}
+
+/*
+ * Used to specify how register and sync operands interact so that
+ * a dependence distance can be calculated.
+ *
+ * For now, a list of possible use times are specified for each operand.
+ *
+ * Other information that it may be desirable to specify is whether
+ * the dependence holds for predicated operations on disjoint predicates.
+ */
+CREATE SECTION Operand_Latency
+  REQUIRED time(INT*);
+{
+}
+
+
+/*
+ * The section is used to specify the dependence distances between
+ * operations (if dependence exists).  All dependences (register,
+ * memory, control, sync, etc) are modeled as flow,
+ * output, and anti dependencies between operands.
+ *
+ * Uses Operand_Latency above to specify how operands interact.
+ *
+ * **** Shail Aditya 01/29/96 ****
+ * Allow multiple mem, ctrl, sync srcs and dests.
+ * Added exception and register reservation latencies.
+ */
+CREATE SECTION Operation_Latency
+  OPTIONAL dest(LINK(Operand_Latency)*);
+  OPTIONAL src(LINK(Operand_Latency)*);
+  OPTIONAL pred(LINK(Operand_Latency)*);
+
+  OPTIONAL mem_dest(LINK(Operand_Latency)*);
+  OPTIONAL ctrl_dest(LINK(Operand_Latency)*);
+  OPTIONAL sync_dest(LINK(Operand_Latency)*);
+
+  OPTIONAL mem_src(LINK(Operand_Latency)*);
+  OPTIONAL ctrl_src(LINK(Operand_Latency)*);
+  OPTIONAL sync_src(LINK(Operand_Latency)*);
+
+  OPTIONAL exc(LINK(Operand_Latency));
+  OPTIONAL rsv(LINK(Operand_Latency)*);
+{
+}
+
+/*
+ * Describes a scheduling alternative for an operation.
+ *
+ * Allow multiple operation formats to be specified 
+ * (for operations that have multiple operation formats but behave the same).
+ */
+CREATE SECTION Scheduling_Alternative
+  REQUIRED format (LINK(Operation_Format) LINK(Operation_Format)*);
+  REQUIRED resv (LINK(Reservation_Table));
+  REQUIRED latency (LINK(Operation_Latency));
+{
+}
+
+/*
+ * Describes the operations in the architecture.
+ *
+ * The scheduling alternatives for each operations may be specified.
+ */
+CREATE SECTION Operation
+  REQUIRED alt(LINK(Scheduling_Alternative)*);
+{
+}
+
+///////////////////////////////////////////////////////////// 
+// Extensions to MDES
+
+// Elcor ISA Extensions -- Shail Aditya June 1997.
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+// These table declaration have now been moved here from the ISA for
+// consistency. These are Elcor specific MDES classes. 
+
+// Elcor specific operation properties are defined here.
+CREATE SECTION Elcor_Operation_Flag
+{
+}
+
+// Elcor Operations form higher levels of the operation hierarchy.
+// Right now we have only one additional level above the architectural 
+// Operations. It is the customizer's job to flatten this hierarchy 
+// into individual scheduling alternatives and regroup based on
+// Operation formats and summary latency specifications. 
+
+CREATE SECTION Elcor_Operation
+OPTIONAL op(LINK(Operation)*);
+OPTIONAL flags(LINK(Elcor_Operation_Flag)*);
+OPTIONAL revbrop(LINK(Elcor_Operation));
+OPTIONAL advloadop(LINK(Elcor_Operation));
+{
+}
+
+
+/////////////////////////////////////////////////////////////
+// Sections for custom opcodes.
+// 
+// The basic idea is that we need to construct a dataflow subgraph
+// to identify and replace in the compiler.
+
+
+// Properties of the nodes in the graph.
+CREATE SECTION Pattern_Node_Flags
+{
+}
+
+// Connects the nodes together.
+CREATE SECTION Pattern_Edge
+{
+}
+
+// Nodes in the graph. Used to represent operations, as well as
+// input/output operands and constants.
+CREATE SECTION Pattern_Node
+  OPTIONAL op(LINK(Elcor_Operation)*);
+  OPTIONAL pred(LINK(Pattern_Edge)*);   
+  OPTIONAL src (LINK(Pattern_Edge)*);
+  OPTIONAL dest(LINK(Pattern_Edge)*);
+  OPTIONAL flags(LINK(Pattern_Node_Flags)*);
+  OPTIONAL const(LINK(Constant_Set));
+{
+}
+
+// A set of nodes that describe one subgraph
+CREATE SECTION Customop_Graph
+ REQUIRED nodes(LINK(Pattern_Node)*);
+{
+}
+
+// Equivalent to an Elcor_Operation
+CREATE SECTION Custom_Operation
+  REQUIRED op(LINK(Operation)*);
+  REQUIRED graph(LINK(Customop_Graph));
+  OPTIONAL flags(LINK(Elcor_Operation_Flag)*);
+{
+}

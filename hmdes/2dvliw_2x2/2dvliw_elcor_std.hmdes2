@@ -1,0 +1,437 @@
+/******************************************************************************
+
+                    SOFTWARE LICENSE AGREEMENT NOTICE
+                   -----------------------------------
+
+IT IS A BREACH OF THIS LICENSE AGREEMENT TO REMOVE THIS NOTICE FROM THE FILE
+OR SOFTWARE, OR ANY MODIFIED VERSIONS OF THIS FILE OR SOFTWARE OR DERIVATIVE
+WORKS. 
+___________________________________________________
+
+Copyright Notices/Identification of Licensor(s) of Original Software 
+in the File 
+
+Copyright (C) 1994 Hewlett-Packard Company
+
+All rights reserved by the foregoing, respectively.
+___________________________________________________
+
+Copyright Notices/Identification of Subsequent Licensor(s)/Contributors of 
+Derivative Works
+
+Copyright <Year> <Owner>
+<Optional: For Commercial license rights, contact:_______________>
+
+All rights reserved by the fhpl_pd_elcor_std.hmdes2oregoing, respectively.
+___________________________________________________
+
+The code contained in this file, including both binary and source [if released
+by the owner(s)] (hereafter, Software) is subject to copyright by the
+respective Licensor(s) and ownership remains with such Licensor(s).  The
+Licensor(s) of the original Software remain free to license their respective
+proprietary Software for other purposes that are independent and separate from
+this file, without obligation to any party. 
+
+Licensor(s) grant(s) you (hereafter, Licensee) a license to use the Software
+for academic, research and internal business purposes only, without a fee.
+"Internal business purposes" means that Licensee may install, use and execute
+the Software for the purpose of designing and evaluating products.  Licensee
+may submit proposals for research support, and receive funding from private
+and Government sponsors for continued development, support and maintenance of
+the Software for the purposes permitted herein. 
+
+Licensee may also disclose results obtained by executing the Software, as well
+as algorithms embodied therein.  Licensee may redistribute the Software to
+third parties provided that the copyright notices and this License Agreement
+Notice statement are reproduced on all copies and that no charge is associated
+with such copies. No patent or other intellectual property license is granted
+or implied by this Agreement, and this Agreement does not license any acts
+except those expressly recited. 
+
+Licensee may modify the Software to make derivative works (as defined in
+Section 101 of Title 17, U.S. Code) (hereafter, Derivative Works), as
+necessary for its own academic, research and internal business purposes.
+Title to copyrights and other proprietary rights in Derivative Works created
+by Licensee shall be owned by Licensee subject, however, to the underlying
+ownership interest(s) of the Licensor(s) in the copyrights and other
+proprietary rights in the original Software.  All the same rights and licenses
+granted herein and all other terms and conditions contained in this Agreement
+pertaining to the Software shall continue to apply to any parts of the
+Software included in Derivative Works.  Licensee's Derivative Work should
+clearly notify users that it is a modified version and not the original
+Software distributed by the Licensor(s). 
+
+If Licensee wants to make its Derivative Works available to other parties,
+such distribution will be governed by the terms and conditions of this License
+Agreement.  Licensee shall not modify this License Agreement, except that
+Licensee shall clearly identify the contribution of its Derivative Work to
+this file by adding an additional copyright notice to the other copyright
+notices listed above, to be added below the line "Copyright
+Notices/Identification of Subsequent Licensor(s)/Contributors of Derivative
+Works."  A party who is not an owner of such Derivative Work within the
+meaning of U.S. Copyright Law (i.e., the original author, or the employer of
+the author if "work of hire") shall not modify this License Agreement or add
+such party's name to the copyright notices above. 
+
+Each party who contributes Software or makes a Derivative Work to this file
+(hereafter, Contributed Code) represents to each Licensor and to other
+Licensees for its own Contributed Code that: 
+
+(a)  Such Contributed Code does not violate (or cause the Software to
+violate) the laws of the United States, including the export control laws of
+the United States, or the laws of any other jurisdiction. 
+
+(b)  The contributing party has all legal right and authority to make such
+Contributed Code available and to grant the rights and licenses contained in
+this License Agreement without violation or conflict with any law. 
+
+(c)  To the best of the contributing party's knowledge and belief, the
+Contributed Code does not infringe upon any proprietary rights or intellectual
+property rights of any third party. 
+
+LICENSOR(S) MAKE(S) NO REPRESENTATIONS ABOUT THE SUITABILITY OF THE SOFTWARE
+OR DERIVATIVE WORKS FOR ANY PURPOSE.  IT IS PROVIDED "AS IS" 	WITHOUT
+EXPRESS OR IMPLIED WARRANTY, INCLUDING BUT NOT LIMITED TO THE MERCHANTABILITY,
+USE OR FITNESS FOR ANY PARTICULAR PURPOSE AND ANY WARRANTY AGAINST
+INFRINGEMENT OF ANY INTELLECTUAL PROPERTY RIGHTS.  LICENSOR(S) SHALL NOT BE
+LIABLE FOR ANY DAMAGES SUFFERED BY THE USERS OF THE SOFTWARE OR DERIVATIVE
+WORKS. 
+
+Any Licensee wishing to make commercial use of the Software or Derivative
+Works should contact each and every Licensor to negotiate an appropriate
+license for such commercial use, and written permission of all Licensors will
+be required for such a commercial license.  Commercial use includes (1)
+integration of all or part of the source code into a product for sale by or on
+behalf of Licensee to third parties, or (2) distribution of the Software or
+Derivative Works to third parties that need it to utilize a commercial product
+sold or licensed by or on behalf of Licensee. 
+
+By using or copying this Contributed Code, Licensee agrees to abide by the
+copyright law and all other applicable laws of the U.S., and the terms of this
+License Agreement.  Any individual Licensor shall have the right to terminate
+this license immediately by written notice upon Licensee's breach of, or
+non-compliance with, any of its terms.  Licensee may be held legally
+responsible for any copyright infringement that is caused or encouraged by
+Licensee's failure to abide by the terms of this License Agreement. 
+
+******************************************************************************/
+
+/////////////////////////////////////////////////////////////////////////////
+//
+//      File:           drap4x4.hmdes2
+//      Authors:        Ricardo Ribeiro dos Santos
+//      Created:        April-June, 2005
+//      Description:    It's a matrix of general-purpose functional units (toplevel).
+//                      It describes a Drap model
+//
+/////////////////////////////////////////////////////////////////////////////
+// HPL-PD Machine Architecture Description (IFMB model. multi issue)
+
+// STANDARD HPL-PD CONFIGURATION FILE
+// Written by Shail Aditya 02/14/96
+
+// Para funcionar
+$def !num_clusters 	 	4	
+$def !vmr_static_size		32
+$def !vmr_rotating_size		32
+
+$def !unrestricted_lit_size     32
+
+// Inter-cluster move bandwidth
+$def !icmove_bw        		1
+
+$def !vec_length 		4
+$def !vec_integer_units		1
+//$def !vec_float_units		1
+$def !vec_integer_perm_units	1
+//$def !vec_float_perm_units	1
+$def !vec_integer_xfr_units	2
+//$def !vec_float_xfr_units	2
+
+$def !local_memories 0
+$def !local_memory_units_per_lmem 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+
+// Register File sizes
+
+$def !gpr_static_size 		32
+$def !gpr_rotating_size 	32
+
+$def !trf_static_size 		32
+$def !trf_rotating_size 	32
+
+// $def !gpr1_static_size 		32
+// $def !gpr1_rotation_size	32
+
+//HABILITAR PARA TRF=4
+// $def !gpr_static_size 	96
+// $def !gpr_rotating_size 48
+
+//HABILITAR PARA TRF=2
+// $def !gpr_static_size 	64
+// $def !gpr_rotating_size 64
+
+//HABILITAR PARA TRF=0
+//$def !gpr_static_size 	32
+//$def !gpr_rotating_size 32
+
+
+//$def !rf_static_size 	32
+
+//$def !uf_register 	2
+
+//$def !trf1_static_size 	2
+
+
+//$def !trf2_static_size 	2
+
+//$def !trf3_static_size 	2
+
+//$def !trf4_static_size 	2
+
+//$def !trf5_static_size 	2
+
+//$def !trf6_static_size 	2
+
+//$def !trf7_static_size 	2
+
+//$def !trf8_static_size 	2
+
+//$def !trf9_static_size 	2
+
+
+$def !fpr_static_size 	32
+$def !fpr_rotating_size 32
+
+$def !pr_static_size 	32
+$def !pr_rotating_size 	32
+
+$def !cr_static_size 	64
+$def !cr_rotating_size 	64
+
+$def !btr_static_size 	16
+
+// SLARSEN: Vector register files
+$def !vir_static_size	16
+$def !vir_rotating_size	64
+
+$def !vfr_static_size	16
+$def !vfr_rotating_size	64
+
+// HPL-PD 2.0 Extn
+// Literal Register File sizes
+
+$def !short_lit_size    7
+$def !memory_lit_size   10
+$def !branch_lit_size   10
+$def !long_lit_size     15
+
+// Functional Units
+// $def !issue_units       16
+$def !issue_units	1
+$def !general_units1    4
+$def !general_units2    8
+$def !general_units3    12
+$def !general_units4    16
+// $def !integer_units 	16
+$def !integer_units	1
+$def !float_units 	1
+$def !memory_units 	1
+$def !branch_units 	1
+// HPL-PD 2.0 Extn
+$def !local_memory_units 1
+
+// SLARSEN: Vector functional units
+$def !vec_integer_units		1
+$def !vec_float_units		1
+$def !vec_integer_xfr_units	2
+$def !vec_float_xfr_units	2
+
+// RMR: issue slots
+$def !issue_slots		16
+
+
+// Latency Parameters
+// sample = earliest input sampling (flow) time 
+// exception = latest input hold (anti) time (to restart from intervening exceptions)
+// latency = latest output available (flow) time 
+// reserve = earliest output allocation (anti) time (to allow draining the pipeline)
+
+$def !int_alu_sample		0
+$def !int_alu_exception		0
+$def !int_alu_latency		1
+$def !int_alu_reserve		0
+
+$def !int_cmpp_sample		0
+$def !int_cmpp_exception	0
+$def !int_cmpp_latency		1
+$def !int_cmpp_reserve		0
+
+$def !int_multiply_sample	0
+$def !int_multiply_exception	0
+$def !int_multiply_latency	3
+$def !int_multiply_reserve	0
+$def !int_multiply_add_sample	2
+
+$def !int_divide_sample		0
+$def !int_divide_exception	0
+$def !int_divide_latency	8
+$def !int_divide_reserve	0
+
+$def !float_alu_sample		0
+$def !float_alu_exception	0
+$def !float_alu_latency		3
+$def !float_alu_reserve         0
+
+$def !float_move_sample		0
+$def !float_move_exception	0
+$def !float_move_latency	1
+$def !float_move_reserve	0
+
+$def !float_cmpp_sample		0
+$def !float_cmpp_exception	0
+$def !float_cmpp_latency	1
+$def !float_cmpp_reserve        0
+
+$def !float_multiply_sample	0
+$def !float_multiply_exception	0
+$def !float_multiply_latency	3
+$def !float_multiply_reserve	0
+
+$def !float_divide_sample	0
+$def !float_divide_exception	0
+$def !float_divide_latency	8
+$def !float_divide_reserve      0
+
+$def !post_increment_add	1
+
+$def !load_level1_sample	0
+$def !load_level1_exception	0
+$def !load_level1_latency	2
+$def !load_level1_reserve       0
+
+$def !load_level2_sample	0
+$def !load_level2_exception	0
+$def !load_level2_latency	7
+$def !load_level2_reserve       0
+
+$def !load_level3_sample	0
+$def !load_level3_exception	0
+$def !load_level3_latency	35
+$def !load_level3_reserve	0
+
+$def !dsload_level1_sample	0
+$def !dsload_level1_exception	2
+$def !dsload_level1_latency	2
+$def !dsload_level1_reserve	0
+
+$def !dsload_level2_sample	0
+$def !dsload_level2_exception	7
+$def !dsload_level2_latency	7
+$def !dsload_level2_reserve	0
+
+$def !dsload_level3_sample	0
+$def !dsload_level3_exception	35
+$def !dsload_level3_latency	35
+$def !dsload_level3_reserve	0
+
+$def !store_sample		0
+$def !store_exception		0
+$def !store_latency		1
+$def !store_reserve		0
+
+$def !dsload_verify_sample	0
+$def !dsload_verify_exception	0
+$def !dsload_verify_latency	1
+$def !dsload_verify_reserve	0
+
+$def !branch_sample		0
+$def !branch_exception		0
+$def !branch_latency		1
+$def !branch_reserve		0
+
+// HPL-PD 2.0 Extn
+$def !load_localmem_sample	0
+$def !load_localmem_exception	0
+$def !load_localmem_latency	2
+$def !load_localmem_reserve     0
+
+// HPL-PD 2.0 Extn
+$def !store_localmem_sample	0
+$def !store_localmem_exception	0
+$def !store_localmem_latency	1
+$def !store_localmem_reserve	0
+
+// SLARSEN: Vector unit latency parameters
+$def !vec_int_alu_sample		int_alu_sample
+$def !vec_int_alu_exception		int_alu_exception
+$def !vec_int_alu_latency		int_alu_latency
+$def !vec_int_alu_reserve		int_alu_reserve
+
+$def !vec_int_multiply_sample		int_multiply_sample
+$def !vec_int_multiply_exception	int_multiply_exception
+$def !vec_int_multiply_latency		int_multiply_latency
+$def !vec_int_multiply_reserve		int_multiply_reserve
+
+$def !vec_int_divide_sample		int_divide_sample
+$def !vec_int_divide_exception		int_divide_exception
+$def !vec_int_divide_latency		int_divide_latency
+$def !vec_int_divide_reserve		int_divide_reserve
+
+$def !vec_float_alu_sample		float_alu_sample
+$def !vec_float_alu_exception		float_alu_exception
+$def !vec_float_alu_latency		float_alu_latency
+$def !vec_float_alu_reserve		float_alu_reserve
+
+$def !vec_float_move_sample		float_move_sample
+$def !vec_float_move_exception		float_move_exception
+$def !vec_float_move_latency		float_move_latency
+$def !vec_float_move_reserve		float_move_reserve
+
+$def !vec_float_multiply_sample		float_multiply_sample
+$def !vec_float_multiply_exception	float_multiply_exception
+$def !vec_float_multiply_latency	float_multiply_latency
+$def !vec_float_multiply_reserve	float_multiply_reserve
+
+$def !vec_float_divide_sample		float_divide_sample
+$def !vec_float_divide_exception	float_divide_exception
+$def !vec_float_divide_latency		float_divide_latency
+$def !vec_float_divide_reserve		float_divide_reserve
+
+$def !vec_load_level1_sample		load_level1_sample
+$def !vec_load_level1_exception		load_level1_exception
+$def !vec_load_level1_latency		load_level1_latency
+$def !vec_load_level1_reserve		load_level1_reserve
+
+$def !vec_store_sample			store_sample
+$def !vec_store_exception		store_exception
+$def !vec_store_latency			store_latency
+$def !vec_store_reserve			store_reserve
+
+$def !vec_int_perm_sample		0
+$def !vec_int_perm_exception		0
+$def !vec_int_perm_latency		1
+$def !vec_int_perm_reserve		0
+
+$def !vec_float_perm_sample		0
+$def !vec_float_perm_exception		0
+$def !vec_float_perm_latency		1
+$def !vec_float_perm_reserve		0
+
+$def !vec_int_xfr_sample		0
+$def !vec_int_xfr_exception		0
+$def !vec_int_xfr_latency		1
+$def !vec_int_xfr_reserve		0
+
+$def !vec_float_xfr_sample		0
+$def !vec_float_xfr_exception		0
+$def !vec_float_xfr_latency		1
+$def !vec_float_xfr_reserve		0
+
+
+
+// Standard Mdes included files 
+$include "2dvliw_ops.hmdes2"
+$include "structure_pristine.hmdes2"
+// $include "2dvliw_structure.hmdes2"
+$include "2dvliw_pristine.hmdes2"
+$include "2dvliw_elcor.hmdes2"
